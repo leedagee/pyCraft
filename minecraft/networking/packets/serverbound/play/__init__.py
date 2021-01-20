@@ -9,6 +9,7 @@ from minecraft.networking.types import (
 )
 
 from .client_settings_packet import ClientSettingsPacket
+from .interact_entity_packet import InteractEntityPacket
 
 
 # Formerly known as state_playing_serverbound.
@@ -22,6 +23,7 @@ def get_packets(context):
         ClientSettingsPacket,
         PluginMessagePacket,
         PlayerBlockPlacementPacket,
+        InteractEntityPacket
     }
     if context.protocol_later_eq(69):
         packets |= {

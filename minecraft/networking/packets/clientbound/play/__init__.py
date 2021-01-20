@@ -17,8 +17,8 @@ from .block_change_packet import BlockChangePacket, MultiBlockChangePacket
 from .explosion_packet import ExplosionPacket
 from .sound_effect_packet import SoundEffectPacket
 from .face_player_packet import FacePlayerPacket
+from .destroy_entities_packet import DestroyEntitiesPacket
 from .join_game_and_respawn_packets import JoinGamePacket, RespawnPacket
-
 
 # Formerly known as state_playing_clientbound.
 def get_packets(context):
@@ -39,12 +39,15 @@ def get_packets(context):
         CombatEventPacket,
         ExplosionPacket,
         SpawnObjectPacket,
+        SpawnLivingEntityPacket,
         BlockChangePacket,
         MultiBlockChangePacket,
         RespawnPacket,
         PluginMessagePacket,
         PlayerListHeaderAndFooterPacket,
-        EntityLookPacket
+        EntityLookPacket,
+        DestroyEntitiesPacket,
+        EntityTeleportPacket
     }
     if context.protocol_earlier_eq(47):
         packets |= {
@@ -357,3 +360,55 @@ class EntityLookPacket(Packet):
         {'pitch': Angle},
         {'on_ground': Boolean}
     ]
+
+class SpawnLivingEntityPacket(Packet): # Aka Spawn Mob
+    @staticmethod
+    def get_id(context):
+        return 0x02 if context.protocol_later_eq(753) else \
+               0x03 if context.protocol_later_eq(551) else \
+               None
+
+    packet_name = 'spawn living entity'
+    definition = [
+        {'entity_id': VarInt},
+        {'object_uuid': UUID},
+        {'type_id': VarInt},
+        {'x': Double},
+        {'y': Double},
+        {'z': Double},
+        {'yaw': Angle},
+        {'pitch': Angle},
+        {'head_pitch': Angle},
+        {'velocity_x': Short},
+        {'velocity_y': Short},
+        {'velocity_z': Short}
+    ]
+
+class EntityTeleportPacket(Packet):
+    @staticmethod
+    def get_id(context):
+        return 0x56 if context.protocol_later_eq(753) else \
+                0x57 if context.protocol_later_eq(551) else \
+                0x56 if context.protocol_later_eq(471) else \
+                0x52 if context.protocol_later_eq(451) else \
+                0x51 if context.protocol_later_eq(440) else \
+                0x50 if context.protocol_later_eq(389) else \
+                0x4f if context.protocol_later_eq(352) else \
+                0x4e if context.protocol_later_eq(345) else \
+                0x4d if context.protocol_later_eq(343) else \
+                0x4c if context.protocol_later_eq(336) else \
+                0x4b if context.protocol_later_eq(332) else \
+                0x49 if context.protocol_later_eq(110) else \
+                0x4a
+
+    packet_name = 'entity teleport'
+    definition = [
+        {'entity_id': VarInt},
+        {'x': Double},
+        {'y': Double},
+        {'z': Double},
+        {'yaw': Angle},
+        {'pitch': Angle},
+        {'on_ground': Boolean}
+    ]
+
